@@ -1,7 +1,7 @@
-# name: wikimedia-ticketing
-# about: Various enhancements to support Wikimedia's ticketing system
+# name: discourse-advanced-ticketing
+# about: Various enhancements to support using Discourse as a ticketing system
 # version: 0.0.1
-# url: https://github.com/angusmcleod/wikimedia-ticketing
+# url: https://github.com/angusmcleod/discourse-advanced-ticketing
 # authors: Angus McLeod
 
 after_initialize do

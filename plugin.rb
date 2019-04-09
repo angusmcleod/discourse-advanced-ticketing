@@ -47,4 +47,42 @@ after_initialize do
   class Email::MessageBuilder
     prepend MessageBuilderExtension
   end
+
+  module GroupMessagesExtension
+    def private_messages_for(user, type)
+      if type == :group
+        limit = @options[:limit]
+        @options[:limit] = false
+        page = @options[:page]
+        @options[:page] = nil
+      end
+
+      result = super(user, type)
+
+      if type == :group
+        result = result.joins("LEFT JOIN topic_custom_fields AS tcf ON (tcf.topic_id = topics.id AND tcf.name = 'assigned_to_id')")
+          .joins("LEFT JOIN users ON tcf.value::integer = users.id")
+          .reorder("
+            topics.posts_count,
+            CASE WHEN tcf.value IS NULL THEN 1 WHEN tcf.value IS NOT NULL THEN 2 ELSE 3 END,
+            CASE WHEN tcf.value IS NULL THEN topics.bumped_at END,
+            CASE WHEN tcf.value IS NOT NULL THEN users.username END
+          ")
+
+        result = result.limit(@options[:per_page]) unless limit == false
+
+        if page
+          offset = page.to_i * options[:per_page]
+          result = result.offset(offset) if offset > 0
+        end
+      end
+
+      result
+    end
+  end
+
+  require_dependency 'topic_query'
+  class ::TopicQuery
+    prepend GroupMessagesExtension
+  end
 end

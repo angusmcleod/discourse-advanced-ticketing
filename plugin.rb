@@ -5,6 +5,39 @@
 # authors: Angus McLeod
 
 after_initialize do
+  load File.expand_path('../jobs/forward_email.rb', __FILE__)
+  load File.expand_path('../mailers/ticketing_mailer.rb', __FILE__)
+
+  module ::AdvancedTicketing
+    class Engine < ::Rails::Engine
+      engine_name "advanced_ticketing"
+      isolate_namespace AdvancedTicketing
+    end
+  end
+
+  Discourse::Application.routes.append do
+    mount ::AdvancedTicketing::Engine, at: "ticketing"
+  end
+
+  AdvancedTicketing::Engine.routes.draw do
+    post "forward" => "ticketing#forward"
+  end
+
+  class AdvancedTicketing::TicketingController < ApplicationController
+    def forward
+      args = params.permit(:email, :message, :post_id).to_h
+      args[:user_id] = current_user.id
+
+      begin
+        Jobs::ForwardEmail.new.execute(args)
+        render json: success_json
+      rescue => e
+        puts "HERE IS THE ERROR: #{e.inspect}"
+        render json: { error: e }, status: 422
+      end
+    end
+  end
+
   module UserNotificationsExtension
     protected def send_notification_email(opts)
       @body_only = opts[:user] && opts[:user].staged

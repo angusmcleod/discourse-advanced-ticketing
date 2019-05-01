@@ -1,0 +1,28 @@
+{{#d-modal-body class='foward' title="advanced_ticketing.forward.modal.title"}}
+  <div class="control-group">
+    <label>{{i18n 'advanced_ticketing.forward.modal.email'}}</label>
+    <div class="controls">
+      {{input value=email}}
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label>{{i18n 'advanced_ticketing.forward.modal.message'}}</label>
+    <div class="controls">
+      {{textarea value=message}}
+    </div>
+  </div>
+{{/d-modal-body}}
+
+<div class="modal-footer">
+  <button class='btn btn-primary' disabled={{forwardDisabled}} {{action "forward"}}>
+    {{#if forwarding}}
+      {{loading-spinner size="small"}}
+    {{else}}
+      {{#if result}}
+        {{d-icon result}}
+      {{/if}}
+      {{i18n 'advanced_ticketing.forward.title'}}
+    {{/if}}
+  </button>
+</div>

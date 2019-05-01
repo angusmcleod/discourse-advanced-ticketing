@@ -1,0 +1,9 @@
+en:
+  forward_mailer:
+    title: "FWD: %{title}"
+    subject_template: "FWD: %{title}"
+    text_body_template: |
+      >  Forwarded by %{user_email}
+      >  %{message}
+
+      %{body}

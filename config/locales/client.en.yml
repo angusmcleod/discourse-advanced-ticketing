@@ -1,0 +1,9 @@
+en:
+  js:
+    advanced_ticketing:
+      forward:
+        title: "Forward"
+        modal:
+          title: "Forward this message"
+          email: "Email"
+          message: "Add a message"

@@ -63,7 +63,7 @@ after_initialize do
   module MessageBuilderExtension
     def html_part
       if @opts[:body_only]
-        @opts[:html_override] = @opts[:message]
+        @opts[:html_override] = @opts[:message].gsub(/(?:\n\r?|\r\n?)/, '<br>')
       end
       super
     end

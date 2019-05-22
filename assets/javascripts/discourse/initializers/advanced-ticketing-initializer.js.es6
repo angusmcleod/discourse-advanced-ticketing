@@ -32,13 +32,20 @@ export default {
           const postNumber = this.attrs.post_number;
           const allowedGroups = this.attrs.topic.get('details.allowed_groups');
           const groupId = allowedGroups[0].id;
-          showModal('forward-modal', {
+          let excerpt = jQuery(this.attrs.cooked).text().substring(0,20);
+
+          if (excerpt.length > 19) excerpt += '...';
+
+          const controller = showModal('forward-modal', {
             model: {
               postId,
               postNumber,
-              groupId
+              groupId,
+              excerpt
             }
           });
+
+          controller.resetProperties();
         }
       });
     });

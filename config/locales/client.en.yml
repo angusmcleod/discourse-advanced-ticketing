@@ -4,7 +4,7 @@ en:
       forward:
         title: "Forward"
         modal:
-          title: "Forward this message"
+          title: 'Forward "{{excerpt}}"'
           email: "Email"
           message: "Add a message"
           include_prior: "Include prior posts"

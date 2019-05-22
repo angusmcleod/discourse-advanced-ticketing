@@ -3,6 +3,21 @@ import { ajax } from 'discourse/lib/ajax';
 import { popupAjaxError } from 'discourse/lib/ajax-error';
 
 export default Ember.Controller.extend({
+  resetProperties() {
+    this.setProperties({
+      forwarding: false,
+      email: '',
+      message: '',
+      result: '',
+      includePrior: null
+    });
+  },
+
+  @computed('model.excerpt')
+  title(excerpt) {
+    return I18n.t('advanced_ticketing.forward.modal.title', { excerpt });
+  },
+
   @computed('email', 'forwarding')
   forwardDisabled(email, forwarding) {
     return !email || forwarding;
@@ -50,7 +65,12 @@ export default Ember.Controller.extend({
           this.set('result', 'fail')
         }
       }).finally(() => {
-        this.set('forwarding', false);
+        this.setProperties({
+          forwarding: false,
+          email: '',
+          message: '',
+          includePrior: null
+        });
       });
     }
   }

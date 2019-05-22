@@ -14,7 +14,7 @@ module Jobs
             post_numbers.each do |post_number|
               if prior_post = Post.find_by(topic_id: post.topic_id, post_number: post_number)
                 if user = User.find_by(id: post.user_id)
-                  body += user.email + "\n\n"
+                  body += "From " + user.email + "\n\n"
                 end
 
                 body += prior_post.raw

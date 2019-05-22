@@ -25,7 +25,7 @@ after_initialize do
 
   class AdvancedTicketing::TicketingController < ApplicationController
     def forward
-      args = params.permit(:email, :message, :post_id).to_h
+      args = params.permit(:email, :message, :post_id, :include_prior, :group_id).to_h
       args[:user_id] = current_user.id
 
       begin

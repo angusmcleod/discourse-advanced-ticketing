@@ -12,17 +12,25 @@
       {{textarea value=message}}
     </div>
   </div>
+
+  {{#if showIncludePrior}}
+    <div class="control-group">
+      <div class="controls">
+        {{input type="checkbox" checked=includePrior}}
+        <span>{{i18n 'advanced_ticketing.forward.modal.include_prior'}}</span>
+      </div>
+    </div>
+  {{/if}}
 {{/d-modal-body}}
 
 <div class="modal-footer">
-  <button class='btn btn-primary' disabled={{forwardDisabled}} {{action "forward"}}>
-    {{#if forwarding}}
-      {{loading-spinner size="small"}}
-    {{else}}
-      {{#if result}}
-        {{d-icon result}}
-      {{/if}}
-      {{i18n 'advanced_ticketing.forward.title'}}
+  {{d-button disabled=forwardDisabled action="forward" label='advanced_ticketing.forward.title'}}
+  {{#if forwarding}}
+    {{loading-spinner size="small"}}
+  {{else}}
+    {{#if result}}
+      {{i18n resultTextKey}}
+      {{d-icon resultIcon}}
     {{/if}}
-  </button>
+  {{/if}}
 </div>

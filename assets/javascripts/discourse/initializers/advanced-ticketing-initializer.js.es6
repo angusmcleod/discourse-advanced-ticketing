@@ -8,8 +8,12 @@ export default {
     const siteSettings = container.lookup("site-settings:main");
 
     withPluginApi('0.8.30', api => {
+      api.includePostAttributes('topic');
+
       api.addPostMenuButton('forward', (attrs, state, siteSettings) => {
-        if (attrs.allowedGroups /*&& attrs.via_email*/) {
+        const isPm = attrs.topic.get('archetype') == 'private_message';
+        const allowedGroups = attrs.topic.get('details.allowed_groups');
+        if (isPm && allowedGroups.length) {
           return {
             action: 'forward',
             icon: 'share',
@@ -25,7 +29,16 @@ export default {
       api.reopenWidget('post-menu', {
         forward() {
           const postId = this.attrs.id;
-          showModal('forward-modal', { model: { postId } });
+          const postNumber = this.attrs.post_number;
+          const allowedGroups = this.attrs.topic.get('details.allowed_groups');
+          const groupId = allowedGroups[0].id;
+          showModal('forward-modal', {
+            model: {
+              postId,
+              postNumber,
+              groupId
+            }
+          });
         }
       });
     });

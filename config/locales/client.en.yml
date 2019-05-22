@@ -7,3 +7,6 @@ en:
           title: "Forward this message"
           email: "Email"
           message: "Add a message"
+          include_prior: "Include prior posts"
+          success: "Forwarded"
+          fail: "Failed to forward"

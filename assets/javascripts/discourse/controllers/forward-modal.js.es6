@@ -8,11 +8,27 @@ export default Ember.Controller.extend({
     return !email || forwarding;
   },
 
+  @computed('model.postNumber')
+  showIncludePrior(postNumber) {
+    return postNumber > 1;
+  },
+
+  @computed('result')
+  resultIcon(result) {
+    return result == 'success' ? 'check' : 'times';
+  },
+
+  @computed('result')
+  resultTextKey(result) {
+    return `advanced_ticketing.forward.modal.${result}`;
+  },
+
   actions: {
     forward() {
       const model = this.get('model');
       const message = this.get('message');
       const email = this.get('email');
+      const includePrior = this.get('includePrior');
 
       if (!email) return;
 
@@ -22,14 +38,16 @@ export default Ember.Controller.extend({
         type: 'POST',
         data: {
           post_id: model.postId,
+          group_id: model.groupId,
           message,
-          email
+          email,
+          include_prior: includePrior
         }
       }).catch(popupAjaxError).then(result => {
-        if (result.sucess) {
-          this.set('result', 'check')
+        if (result.success) {
+          this.set('result', 'success')
         } else {
-          this.set('result', 'times')
+          this.set('result', 'fail')
         }
       }).finally(() => {
         this.set('forwarding', false);

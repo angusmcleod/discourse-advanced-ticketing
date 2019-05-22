@@ -6,11 +6,12 @@ class TicketingMailer < ActionMailer::Base
   def forward_email(args)
     build_email(
       args[:email],
+      from: args[:from],
       template: 'forward_mailer',
-      title: args[:post].topic.title,
+      title: args[:title],
       user_email: args[:user].email,
       message: args[:message],
-      body: args[:post].raw
+      body: args[:body]
     )
   end
 end

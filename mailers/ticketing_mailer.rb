@@ -17,19 +17,4 @@ class TicketingMailer < ActionMailer::Base
       allow_reply_by_email: true
     )
   end
-
-  def find_or_create_user(email)
-    user = User.find_by_email(email)
-
-    if !user
-      user = User.create!(
-        email: email,
-        username: UserNameSuggester.suggest(email),
-        name: User.suggest_name(email),
-        staged: true
-      )
-    end
-
-    user
-  end
 end

@@ -45,7 +45,7 @@ module Jobs
 
           message = TicketingMailer.forward_email(args)
 
-          recipient_user = find_or_create_user(args[:email])
+          recipient_user = add_recipient_user(args[:email], args[:forwarding_user], post.topic)
 
           Email::Sender.new(message, :forward_email, recipient_user).send
         end
@@ -54,19 +54,24 @@ module Jobs
 
     protected
 
-    def find_or_create_user(email)
-      user = User.find_by_email(email)
+    def add_recipient_user(recipient_email, forwarding_user, topic)
+      recipient_user = User.find_by_email(recipient_email)
 
-      if !user
-        user = User.create!(
-          email: email,
-          username: UserNameSuggester.suggest(email),
-          name: User.suggest_name(email),
+      if !recipient_user
+        recipient_user = User.create!(
+          email: recipient_email,
+          username: UserNameSuggester.suggest(recipient_email),
+          name: User.suggest_name(recipient_email),
           staged: true
         )
       end
 
-      user
+      Topic.transaction do
+        topic.topic_allowed_users.create!(user_id: recipient_user.id) unless topic.topic_allowed_users.exists?(user_id: recipient_user.id)
+        topic.add_small_action(forwarding_user, "forwarded_to", recipient_user.username)
+      end
+
+      recipient_user
     end
   end
 end

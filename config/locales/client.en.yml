@@ -1,5 +1,8 @@
 en:
   js:
+    action_codes:
+      forwarded_to: "forwarded to %{who} %{when}"
+
     advanced_ticketing:
       forward:
         title: "Forward"

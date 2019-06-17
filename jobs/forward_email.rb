@@ -25,7 +25,11 @@ module Jobs
               end
             end
           else
-            body = post.raw
+            if user = User.find_by(id: post.user_id)
+              body += "From " + user.email + "\n\n"
+            end
+
+            body += post.raw
           end
 
           group = Group.find_by(id: args[:group_id])

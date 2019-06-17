@@ -6,7 +6,7 @@ module Jobs
 
     def execute(args)
       if post = Post.find_by(id: args[:post_id])
-        if args[:user] = User.find_by(id: args[:user_id])
+        if args[:forwarding_user] = User.find_by(id: args[:user_id])
           body = ''
 
           if post.post_number > 1 && args[:include_prior]
@@ -45,9 +45,28 @@ module Jobs
 
           message = TicketingMailer.forward_email(args)
 
-          Email::Sender.new(message, :forward_email, args[:user]).send
+          recipient_user = find_or_create_user(args[:email])
+
+          Email::Sender.new(message, :forward_email, recipient_user).send
         end
       end
+    end
+
+    protected
+
+    def find_or_create_user(email)
+      user = User.find_by_email(email)
+
+      if !user
+        user = User.create!(
+          email: email,
+          username: UserNameSuggester.suggest(email),
+          name: User.suggest_name(email),
+          staged: true
+        )
+      end
+
+      user
     end
   end
 end

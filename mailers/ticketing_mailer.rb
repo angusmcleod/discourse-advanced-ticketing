@@ -9,12 +9,27 @@ class TicketingMailer < ActionMailer::Base
       from: args[:from],
       template: 'forward_mailer',
       title: args[:title],
-      user_email: args[:user].email,
+      forwarding_user_email: args[:forwarding_user].email,
       message: args[:message],
       body: args[:body],
       post_id: args[:post_id],
       topic_id: args[:topic_id],
       allow_reply_by_email: true
     )
+  end
+
+  def find_or_create_user(email)
+    user = User.find_by_email(email)
+
+    if !user
+      user = User.create!(
+        email: email,
+        username: UserNameSuggester.suggest(email),
+        name: User.suggest_name(email),
+        staged: true
+      )
+    end
+
+    user
   end
 end

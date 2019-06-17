@@ -40,10 +40,12 @@ module Jobs
 
           args[:title] = post.topic.title
           args[:body] = body
+          args[:post_id] = post.id
+          args[:topic_id] = post.topic.id
 
           message = TicketingMailer.forward_email(args)
 
-          Email::Sender.new(message, :forward_email).send
+          Email::Sender.new(message, :forward_email, args[:user]).send
         end
       end
     end

@@ -12,6 +12,8 @@ class TicketingMailer < ActionMailer::Base
       user_email: args[:user].email,
       message: args[:message],
       body: args[:body],
+      post_id: args[:post_id],
+      topic_id: args[:topic_id],
       allow_reply_by_email: true
     )
   end

@@ -25,27 +25,74 @@ after_initialize do
 
   class AdvancedTicketing::TicketingController < ApplicationController
     def forward
-      args = params.permit(:email, :message, :post_id, :include_prior, :group_id).to_h
+      args = params.permit(:email, :message, :post_id, :include_prior, :group_id, :hide_responses).to_h
       args[:user_id] = current_user.id
 
       begin
         Jobs::ForwardEmail.new.execute(args)
         render json: success_json
       rescue => e
-        puts "HERE IS THE ERROR: #{e.inspect}"
         render json: { error: e }, status: 422
       end
     end
   end
+  
+  Group.register_custom_field_type('advanced_ticketing_plain_text_notifications', :boolean)
+  Group.preloaded_custom_fields << "advanced_ticketing_plain_text_notifications" if Group.respond_to? :preloaded_custom_fields
 
-  module UserNotificationsExtension
+  module AdminGroupsControllerAdvancedTicketingExtension
+    private def group_params
+      group = params.require(:group).permit(:plain_text_notifications)
+
+      if group[:plain_text_notifications] != nil
+        super.merge(custom_fields: {
+          advanced_ticketing_plain_text_notifications: group[:plain_text_notifications]
+        })
+      else
+        super
+      end
+    end
+  end
+
+  module GroupsControllerAdvancedTicketingExtension
+    private def group_params(automatic: false)
+      group = params.require(:group).permit(:plain_text_notifications)
+
+      if group[:plain_text_notifications] != nil
+        super.merge(custom_fields: {
+          advanced_ticketing_plain_text_notifications: group[:plain_text_notifications]
+        })
+      else
+        super
+      end
+    end
+  end
+
+  require_dependency 'admin/groups_controller'
+  class ::Admin::GroupsController
+    prepend AdminGroupsControllerAdvancedTicketingExtension
+  end
+
+  require_dependency 'groups_controller'
+  class ::GroupsController
+    prepend GroupsControllerAdvancedTicketingExtension
+  end
+
+  module UserNotificationsAdvancedTicketingExtension
     protected def send_notification_email(opts)
-      @body_only = opts[:user] && opts[:user].staged
+      user = opts[:user]
+      topic = opts[:post]&.topic
+            
+      @body_only = topic&.private_message? &&
+         topic.allowed_groups.any? &&
+         topic.allowed_groups.first.custom_fields['advanced_ticketing_plain_text_notifications'] &&
+         user&.staged
+      
       super(opts)
     end
   end
 
-  module BuildEmailHelperExtension
+  module BuildEmailHelperAdvancedTicketingExtension
     def build_email(*builder_args)
       if builder_args[1] && @body_only
         builder_args[1][:body_only] = @body_only
@@ -56,11 +103,11 @@ after_initialize do
 
   require_dependency 'user_notifications'
   class ::UserNotifications
-    prepend UserNotificationsExtension
-    prepend BuildEmailHelperExtension
+    prepend UserNotificationsAdvancedTicketingExtension
+    prepend BuildEmailHelperAdvancedTicketingExtension
   end
 
-  module MessageBuilderExtension
+  module MessageBuilderAdvancedTicketingExtension
     def html_part
       if @opts[:body_only]
         @opts[:html_override] = @opts[:message].gsub(/(?:\n\r?|\r\n?)/, '<br>')
@@ -78,10 +125,10 @@ after_initialize do
   end
 
   class Email::MessageBuilder
-    prepend MessageBuilderExtension
+    prepend MessageBuilderAdvancedTicketingExtension
   end
 
-  module GroupMessagesExtension
+  module GroupMessagesAdvancedTicketingExtension
     def private_messages_for(user, type)
       if type == :group
         limit = @options[:limit]
@@ -116,6 +163,22 @@ after_initialize do
 
   require_dependency 'topic_query'
   class ::TopicQuery
-    prepend GroupMessagesExtension
+    prepend GroupMessagesAdvancedTicketingExtension
+  end
+  
+  module EmailReceiverAdvancedTicketingExtension
+    def create_reply(options = {})      
+      if options[:topic] &&
+         options[:user] &&
+         options[:user].custom_fields['advanced_ticketing_hide_responses'].present? &&
+         [*options[:user].custom_fields['advanced_ticketing_hide_responses']].include?(options[:topic].id)
+         options[:post_type] = Post.types[:whisper]
+      end
+    end
+  end
+  
+  require_dependency 'email/receiver'
+  class ::Email::Receiver
+     prepend EmailReceiverAdvancedTicketingExtension
   end
 end

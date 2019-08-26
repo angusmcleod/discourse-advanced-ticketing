@@ -45,8 +45,8 @@ module Jobs
 
           message = TicketingMailer.forward_email(args)
 
-          recipient_user = add_recipient_user(args[:email], args[:forwarding_user], post.topic)
-
+          recipient_user = add_recipient_user(args, post.topic)
+          
           Email::Sender.new(message, :forward_email, recipient_user).send
         end
       end
@@ -54,21 +54,28 @@ module Jobs
 
     protected
 
-    def add_recipient_user(recipient_email, forwarding_user, topic)
-      recipient_user = User.find_by_email(recipient_email)
+    def add_recipient_user(args, topic)      
+      recipient_user = User.find_by_email(args[:email])
 
       if !recipient_user
         recipient_user = User.create!(
-          email: recipient_email,
-          username: UserNameSuggester.suggest(recipient_email),
-          name: User.suggest_name(recipient_email),
+          email: args[:email],
+          username: UserNameSuggester.suggest(args[:email]),
+          name: User.suggest_name(args[:recipient_email]),
           staged: true
         )
+      end
+      
+      if args[:hide_responses]
+        current = recipient_user.custom_fields['advanced_ticketing_hide_responses'] || []
+        current.push(topic.id)
+        recipient_user.custom_fields['advanced_ticketing_hide_responses'] = current
+        recipient_user.save_custom_fields(true)
       end
 
       Topic.transaction do
         topic.topic_allowed_users.create!(user_id: recipient_user.id) unless topic.topic_allowed_users.exists?(user_id: recipient_user.id)
-        topic.add_small_action(forwarding_user, "forwarded_to", recipient_user.username)
+        topic.add_small_action(args[:forwarding_user], "forwarded_to", recipient_user.username)
       end
 
       recipient_user

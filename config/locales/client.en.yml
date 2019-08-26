@@ -3,6 +3,11 @@ en:
     action_codes:
       forwarded_to: "forwarded to %{who} %{when}"
 
+    admin:
+      groups:
+        plain_text_notifications:
+          label: "Send plain text notifications to staged users in group messages."
+
     advanced_ticketing:
       forward:
         title: "Forward"
@@ -11,5 +16,6 @@ en:
           email: "Email"
           message: "Add a message"
           include_prior: "Include prior posts"
+          hide_responses: "Hide responses from recipient of forward"
           success: "Forwarded"
           fail: "Failed to forward"

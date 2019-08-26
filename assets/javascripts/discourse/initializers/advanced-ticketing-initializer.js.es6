@@ -3,15 +3,12 @@ import showModal from 'discourse/lib/show-modal';
 
 export default {
   name: 'advanced-ticketing-initializer',
-  initialize(container) {
-    const currentUser = container.lookup('current-user:main');
-    const siteSettings = container.lookup("site-settings:main");
-
+  initialize() {
     withPluginApi('0.8.30', api => {
       api.includePostAttributes('topic');
 
-      api.addPostMenuButton('forward', (attrs, state, siteSettings) => {
-        const isPm = attrs.topic.get('archetype') == 'private_message';
+      api.addPostMenuButton('forward', (attrs) => {
+        const isPm = attrs.topic.get('archetype') === 'private_message';
         const allowedGroups = attrs.topic.get('details.allowed_groups');
         if (isPm && allowedGroups.length) {
           return {
@@ -48,6 +45,14 @@ export default {
           controller.resetProperties();
         }
       });
+
+      api.modifyClass('model:group', {
+        asJSON() {
+          let attrs = this._super();
+          attrs['plain_text_notifications'] = this.get('plainTextNotifications');
+          return attrs;
+        }
+      });
     });
   }
-}
+};

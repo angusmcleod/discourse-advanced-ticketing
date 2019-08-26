@@ -9,7 +9,8 @@ export default Ember.Controller.extend({
       email: '',
       message: '',
       result: '',
-      includePrior: null
+      includePrior: null,
+      hideResponses: true
     });
   },
 
@@ -30,7 +31,7 @@ export default Ember.Controller.extend({
 
   @computed('result')
   resultIcon(result) {
-    return result == 'success' ? 'check' : 'times';
+    return result === 'success' ? 'check' : 'times';
   },
 
   @computed('result')
@@ -40,10 +41,19 @@ export default Ember.Controller.extend({
 
   actions: {
     forward() {
-      const model = this.get('model');
-      const message = this.get('message');
-      const email = this.get('email');
-      const includePrior = this.get('includePrior');
+      const {
+        model,
+        message,
+        email,
+        includePrior,
+        hideResponses
+      } = this.getProperties(
+        'model',
+        'message',
+        'email',
+        'includePrior',
+        'hideResponses'
+      );
 
       if (!email) return;
 
@@ -56,20 +66,18 @@ export default Ember.Controller.extend({
           group_id: model.groupId,
           message,
           email,
-          include_prior: includePrior
+          include_prior: includePrior,
+          hide_responses: hideResponses
         }
       }).catch(popupAjaxError).then(result => {
-        if (result.success) {
-          this.set('result', 'success')
-        } else {
-          this.set('result', 'fail')
-        }
+        this.set('result', result.success ? 'success' : 'fail');
       }).finally(() => {
         this.setProperties({
           forwarding: false,
           email: '',
           message: '',
-          includePrior: null
+          includePrior: null,
+          hideResponses: true
         });
       });
     }

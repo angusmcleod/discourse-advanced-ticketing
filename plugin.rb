@@ -167,7 +167,8 @@ after_initialize do
   end
   
   SiteSetting.enable_whispers = true
-  
+  register_user_custom_field_type('advanced_ticketing_hide_responses', :integer)
+
   module EmailReceiverAdvancedTicketingExtension
     def create_reply(options = {})      
       if options[:topic] &&

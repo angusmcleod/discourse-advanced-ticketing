@@ -67,7 +67,7 @@ module Jobs
       end
       
       if args[:hide_responses]
-        current = recipient_user.custom_fields['advanced_ticketing_hide_responses'] || []
+        current = [*recipient_user.custom_fields['advanced_ticketing_hide_responses']] || []
         current.push(topic.id)
         recipient_user.custom_fields['advanced_ticketing_hide_responses'] = current
         recipient_user.save_custom_fields(true)

@@ -166,6 +166,8 @@ after_initialize do
     prepend GroupMessagesAdvancedTicketingExtension
   end
   
+  SiteSetting.enable_whispers = true
+  
   module EmailReceiverAdvancedTicketingExtension
     def create_reply(options = {})      
       if options[:topic] &&
@@ -174,6 +176,7 @@ after_initialize do
          [*options[:user].custom_fields['advanced_ticketing_hide_responses']].include?(options[:topic].id)
          options[:post_type] = Post.types[:whisper]
       end
+      super(options)
     end
   end
   

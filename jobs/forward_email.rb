@@ -9,7 +9,7 @@ module Jobs
         if args[:forwarding_user] = User.find_by(id: args[:user_id])
           body = ''
 
-          if post.post_number > 1 && args[:include_prior]
+          if post.post_number > 1 && args[:include_prior].present?
             post_numbers = (1..(post.post_number)).to_a
             post_numbers.each do |post_number|
               if prior_post = Post.find_by(topic_id: post.topic_id, post_number: post_number)

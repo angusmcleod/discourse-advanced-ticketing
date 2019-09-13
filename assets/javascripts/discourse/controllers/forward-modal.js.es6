@@ -57,18 +57,21 @@ export default Ember.Controller.extend({
 
       if (!email) return;
 
+      let data = {
+        post_id: model.postId,
+        group_id: model.groupId,
+        message,
+        email
+      };
+
+      if (includePrior) data['include_prior'] = includePrior;
+      if (hideResponses) data['hide_responses'] = hideResponses;
+
       this.set('forwarding', true);
 
       ajax('/ticketing/forward', {
         type: 'POST',
-        data: {
-          post_id: model.postId,
-          group_id: model.groupId,
-          message,
-          email,
-          include_prior: includePrior,
-          hide_responses: hideResponses
-        }
+        data
       }).catch(popupAjaxError).then(result => {
         this.set('result', result.success ? 'success' : 'fail');
       }).finally(() => {

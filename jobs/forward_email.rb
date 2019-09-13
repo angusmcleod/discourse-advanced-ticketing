@@ -13,7 +13,7 @@ module Jobs
             post_numbers = (1..(post.post_number)).to_a
             post_numbers.each do |post_number|
               if prior_post = Post.find_by(topic_id: post.topic_id, post_number: post_number)
-                if user = User.find_by(id: post.user_id)
+                if user = User.find_by(id: prior_post.user_id)
                   body += "From " + user.email + "\n\n"
                 end
 

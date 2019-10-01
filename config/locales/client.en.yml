@@ -16,6 +16,6 @@ en:
           email: "Email"
           message: "Add a message"
           include_prior: "Include prior posts"
-          hide_responses: "Hide responses from recipient of forward"
+          hide_responses: "Hide forward recipient’s responses from original sender"
           success: "Forwarded"
           fail: "Failed to forward"

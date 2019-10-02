@@ -14,7 +14,7 @@ module Jobs
             post_numbers.each do |post_number|
               prior_post = Post.find_by(topic_id: post.topic_id, post_number: post_number)
               
-              if prior_post && prior_post.post_type == 1
+              if prior_post && [Post.types[:regular], Post.types[:whisper]].include?(prior_post.post_type)
                 if user = User.find_by(id: prior_post.user_id)
                   body += "From " + user.email + "\n\n"
                 end

@@ -23,7 +23,7 @@ after_initialize do
     post "forward" => "ticketing#forward"
   end
 
-  class AdvancedTicketing::TicketingController < ApplicationController
+  class AdvancedTicketing::TicketingController < ::ApplicationController
     def forward
       args = params.permit(:email, :message, :post_id, :include_prior, :group_id, :hide_responses).to_h
       args[:user_id] = current_user.id
@@ -101,7 +101,6 @@ after_initialize do
     end
   end
 
-  require_dependency 'user_notifications'
   class ::UserNotifications
     prepend UserNotificationsAdvancedTicketingExtension
     prepend BuildEmailHelperAdvancedTicketingExtension
@@ -124,7 +123,7 @@ after_initialize do
     end
   end
 
-  class Email::MessageBuilder
+  class ::Email::MessageBuilder
     prepend MessageBuilderAdvancedTicketingExtension
   end
 

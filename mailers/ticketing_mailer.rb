@@ -1,3 +1,5 @@
+require_dependency 'email/message_builder'
+
 class TicketingMailer < ::ActionMailer::Base
   include ::Email::BuildEmailHelper
 

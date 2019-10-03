@@ -100,7 +100,8 @@ after_initialize do
       super(*builder_args)
     end
   end
-
+  
+  require_dependency 'user_notifications'
   class ::UserNotifications
     prepend UserNotificationsAdvancedTicketingExtension
     prepend BuildEmailHelperAdvancedTicketingExtension

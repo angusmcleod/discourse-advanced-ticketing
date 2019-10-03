@@ -1,3 +1,5 @@
+require_dependency 'email/sender'
+
 module Jobs
   class ForwardEmail < ::Jobs::Base
     sidekiq_options queue: 'critical'
